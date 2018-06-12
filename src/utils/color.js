@@ -252,3 +252,31 @@ export function createColorObject(value) {
   const colorValues = getColorValues(color, type)
   return buildColor(colorValues, type)
 }
+
+export function formatInputValue(color, type) {
+  let value, values
+
+  switch (type) {
+    case 'hex':
+      values = getColorValues(color[type].value, type)
+      value = formatHEXValue(values)
+      break
+    case 'rgb':
+      values = getColorValues(color[type].value, type)
+      value = formatRGBValue(values)
+      break
+    case 'r':
+      value = color.rgb.r
+      break
+    case 'g':
+      value = color.rgb.g
+      break
+    case 'b':
+      value = color.rgb.b
+      break
+    default:
+      break
+  }
+
+  return value
+}
