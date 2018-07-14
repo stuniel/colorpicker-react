@@ -4,7 +4,9 @@ import styled from 'styled-components'
 import isEqual from 'lodash.isequal'
 
 import { formatInputValue, getColorValues, buildColor } from '../utils/color'
-import { withColor } from './withColor'
+import withColor from './withColor'
+
+const types = ['hex', 'rgb', 'r', 'g', 'b']
 
 const propTypes = {
   color: PropTypes.shape({
@@ -33,7 +35,7 @@ const propTypes = {
   onChange: PropTypes.func.isRequired,
   previewButton: PropTypes.bool,
   style: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  type: PropTypes.oneOf(['hex', 'rgb', 'r', 'g', 'b'])
+  type: PropTypes.oneOf(types)
 }
 
 const defaultProps = {
@@ -43,9 +45,9 @@ const defaultProps = {
 }
 
 const Wrapper = styled.div`
-display: block;
-position: relative;
-box-sizing: border-box;
+  display: block;
+  position: relative;
+  box-sizing: border-box;
 `
 
 const Input = styled.input`
@@ -80,11 +82,9 @@ class ColorInput extends React.PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      color: this.props.color,
       focused: false,
       inputValue: formatInputValue(this.props.color, this.props.type),
-      preview: false,
-      type: this.props.type
+      preview: false
     }
     this.onChange = this.onChange.bind(this)
     this.onBlur = this.onBlur.bind(this)
@@ -92,23 +92,17 @@ class ColorInput extends React.PureComponent {
     this.togglePreview = this.togglePreview.bind(this)
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const { color, type } = nextProps
+  componentDidUpdate(prevProps) {
+    const { color, type } = this.props
 
-    if (prevState.focused || (isEqual(color, prevState.color) && type === prevState.type)) {
-      return null
-    }
-
-    return {
-      color,
-      inputValue: formatInputValue(color, type),
-      type
+    if (!this.state.focused || (prevProps.color !== color && prevProps.type !== type)) {
+      const inputValue = formatInputValue(color, type)
+      this.setState({ inputValue }) // eslint-disable-line react/no-did-update-set-state
     }
   }
 
   onChange(e) {
-    const { onChange, type } = this.props
-    const { color: prevColor } = this.state
+    const { color: prevColor, onChange, type } = this.props
     const inputValue = e.target.value
     const colorValues = getColorValues(inputValue, type)
 
@@ -117,14 +111,12 @@ class ColorInput extends React.PureComponent {
     if (onChange && colorValues != null) {
       const color = buildColor(colorValues, type, prevColor)
 
-      this.setState({ color })
       onChange(color)
     }
   }
 
   onBlur() {
-    const { type } = this.props
-    const { color } = this.state
+    const { color, type } = this.props
     const inputValue = formatInputValue(color, type)
 
     this.setState({ inputValue, focused: false })
@@ -139,10 +131,8 @@ class ColorInput extends React.PureComponent {
   }
 
   render() {
-    const { previewButton, style } = this.props
-    const {
-      color: { hex: { value } }, inputValue, preview
-    } = this.state
+    const { color: { hex: { value } }, previewButton, style } = this.props
+    const { inputValue, preview } = this.state
 
     return (
       <Wrapper style={style}>

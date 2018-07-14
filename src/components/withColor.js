@@ -1,12 +1,7 @@
 import React from 'react'
-import { createColorObject } from '../utils/color'
+import { ColorContext } from './ColorContext'
 
-export const ColorContext = React.createContext({
-  color: createColorObject('#FFFFFF'),
-  onChange: () => {}
-})
-
-export function withColor(Component) {
+function withColor(Component) {
   return function ColoredComponent(props) {
     return (
       <ColorContext.Consumer>
@@ -15,3 +10,5 @@ export function withColor(Component) {
     )
   }
 }
+
+export default withColor

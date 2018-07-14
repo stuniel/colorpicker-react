@@ -65,7 +65,9 @@ export function formatHSL(input) {
 
 export function hexToHSL(hex) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.value)
-  let r, g, b
+  let r
+  let g
+  let b
   r = parseInt(result[1], 16)
   g = parseInt(result[2], 16)
   b = parseInt(result[3], 16)
@@ -76,14 +78,15 @@ export function hexToHSL(hex) {
 
   const max = Math.max(r, g, b)
   const min = Math.min(r, g, b)
-  let h, s
+  let h
+  let s
   const l = (max + min) / 2
 
   if (max === min) {
     h = 0
     s = 0
   } else {
-    let d = max - min
+    const d = max - min
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
     switch (max) {
       case r:
@@ -135,7 +138,9 @@ export function rgbToHEX(rgb) {
 
 export function hslToRGB(hsl) {
   const { h, s, l } = hsl
-  let r, g, b
+  let r
+  let g
+  let b
 
   if (s === 0) {
     r = g = b = l
@@ -160,7 +165,7 @@ export function hslToRGB(hsl) {
 }
 
 export function hslToHSV(hsl) {
-  let { h, s, l } = hsl
+  const { h, s, l } = hsl
 
   const hsv = {}
   hsv.h = h
@@ -172,7 +177,12 @@ export function hslToHSV(hsl) {
 }
 
 export function buildColor(value, type, prevColor) {
-  let reg, color, colorValue, hex, hsl, hsv, rgb
+  let color
+  let colorValue
+  let hex
+  let hsl
+  let hsv
+  let rgb
   switch (type) {
     case 'hex':
       colorValue = formatHEXValue(value)
@@ -222,7 +232,9 @@ export function buildColor(value, type, prevColor) {
       break
   }
 
-  return { hsl, hsv, hex, rgb }
+  return {
+    hsl, hsv, hex, rgb
+  }
 }
 
 function detectColorType(color) {
@@ -254,7 +266,8 @@ export function createColorObject(value) {
 }
 
 export function formatInputValue(color, type) {
-  let value, values
+  let value
+  let values
 
   switch (type) {
     case 'hex':
