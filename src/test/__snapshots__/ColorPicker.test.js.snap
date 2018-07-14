@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ColorPicker /> renders children correctly 1`] = `
+<[object Object]
+  value={
+    Object {
+      "color": Object {
+        "hex": Object {
+          "value": "#FFFFFF",
+        },
+        "hsl": Object {
+          "h": 0,
+          "l": 1,
+          "s": 0,
+          "value": "hsl(0, 0%, 100%)",
+        },
+        "hsv": Object {
+          "h": 0,
+          "s": 0,
+          "v": 1,
+        },
+        "rgb": Object {
+          "b": 255,
+          "g": 255,
+          "r": 255,
+          "value": "rgb(255, 255, 255)",
+        },
+      },
+      "onChange": [Function],
+    }
+  }
+>
+  <span />
+</[object Object]>
+`;

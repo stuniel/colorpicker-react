@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ColorInput /> renders correctly 1`] = `
+<styled.div
+  style={Object {}}
+>
+  <styled.input
+    onBlur={[Function]}
+    onChange={[Function]}
+    onFocus={[Function]}
+    value="#FFFFFF"
+  />
+</styled.div>
+`;

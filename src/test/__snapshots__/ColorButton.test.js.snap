@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<ColorButton /> renders correctly 1`] = `
+<styled.button
+  active={false}
+  onMouseDown={[Function]}
+  radius="2em"
+  style={Object {}}
+  value="#000000"
+/>
+`;
