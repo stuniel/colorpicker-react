@@ -1,149 +1,24 @@
-export function getColorValues(color, type) {
-  let reg
-  switch (type) {
-    case 'hex':
-      reg = /^(#?)([a-f\d]{3}|[a-f\d]{6})$/i
-      break
-    case 'rgb':
-      reg = /^rgb\( ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d), ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d), ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d) ?\)$/
-      break
-    case 'hsl':
-      reg = /^hsl\( ?(0|360|35\d|3[0-4]\d|[12]\d\d|0?\d?\d), ?(0|100|\d{1,2})%, ?(0|100|\d{1,2})%\)$/
-      break
-    case 'r':
-    case 'g':
-    case 'b':
-      reg = /(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d)/
-      break
-    default:
-      break
-  }
-
-  return reg.exec(color)
-}
-
-export function formatHEXValue(hex) {
-  const value = hex[2]
-  const color = value.length === 3
-    ? value[0].repeat(2) + value[1].repeat(2) + value[2].repeat(2)
-    : value
-
-  return `#${color.toUpperCase()}`
-}
-
-export function formatRGBValue(rgb) {
-  const [value, r, g, b] = rgb
-  return `rgb(${r}, ${g}, ${b})`
-}
-
-export function formatHSLValue(hsl) {
-  const [value, h, s, l] = hsl
-  return `hsl(${h}, ${s}%, ${l}%)`
-}
-
-export function formatRGB(input) {
-  const [value, r, g, b] = input
-  const rgb = {}
-  rgb.r = parseFloat(r)
-  rgb.g = parseFloat(g)
-  rgb.b = parseFloat(b)
-  rgb.value = formatRGBValue(input)
-
-  return { ...rgb }
-}
-
-export function formatHSL(input) {
-  const [value, h, s, l] = input
-  const hsl = {}
-  hsl.h = parseFloat(h)
-  hsl.s = parseFloat(s / 100)
-  hsl.l = parseFloat(l / 100)
-  hsl.value = formatHSLValue(input)
-
-  return { ...hsl }
-}
-
-export function hexToHSL(hex) {
+function hexToRgb(hex) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.value)
+
+  const r = parseInt(result[1], 16)
+  const g = parseInt(result[2], 16)
+  const b = parseInt(result[3], 16)
+  const value = `rgb(${r}, ${g}, ${b})`
+
+  return { r, g, b, value } // eslint-disable-line object-curly-newline
+}
+
+function hslToRgb(hsl) {
+  let { h, s, l } = hsl
   let r
   let g
   let b
-  r = parseInt(result[1], 16)
-  g = parseInt(result[2], 16)
-  b = parseInt(result[3], 16)
 
-  r /= 255
-  g /= 255
-  b /= 255
-
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  let h
-  let s
-  const l = (max + min) / 2
-
-  if (max === min) {
-    h = 0
-    s = 0
-  } else {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r:
-        h = ((g - b) / d) + (g < b ? 6 : 0)
-        break
-      case g:
-        h = ((b - r) / d) + 2
-        break
-      case b:
-        h = ((r - g) / d) + 4
-        break
-      default:
-        break
-    }
-    h /= 6
-  }
-  const hsl = {}
-  hsl.h = Math.ceil(parseFloat(h * 360))
-  hsl.s = s
-  hsl.l = l
-  hsl.value = `hsl(${hsl.h}, ${Math.ceil(parseFloat(s * 100))}%, ${Math.ceil(parseFloat(l * 100))}%)`
-
-  return { ...hsl }
-}
-
-export function hexToRGB(hex) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.value)
-
-  const rgb = {}
-  rgb.r = parseInt(result[1], 16)
-  rgb.g = parseInt(result[2], 16)
-  rgb.b = parseInt(result[3], 16)
-  rgb.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
-
-  return { ...rgb }
-}
-
-export function rgbToHEX(rgb) {
-  const { r, g, b } = rgb
-  const toHex = (x) => {
-    const hex = Math.round(x).toString(16).toUpperCase()
-    return hex.length === 1 ? `0${hex}` : hex
-  }
-
-  const hex = {}
-  hex.value = `#${toHex(r)}${toHex(g)}${toHex(b)}`
-  return { ...hex }
-}
-
-export function hslToRGB(hsl) {
-  const { h, s, l } = hsl
-  let r
-  let g
-  let b
+  h /= 360
 
   if (s === 0) {
-    r = g = b = l
+    r = g = b = l // eslint-disable-line no-multi-assign
   } else {
     const hueToRGB = (p, q, t) => {
       if (t < 0) { t += 1 }
@@ -161,10 +36,15 @@ export function hslToRGB(hsl) {
     b = hueToRGB(p, q, h - (1 / 3))
   }
 
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
+  r = Math.round(r * 255)
+  g = Math.round(g * 255)
+  b = Math.round(b * 255)
+  const value = `rgb(${r}, ${g}, ${b})`
+
+  return { r, g, b, value } // eslint-disable-line object-curly-newline
 }
 
-export function hslToHSV(hsl) {
+function hslToHsv(hsl) {
   const { h, s, l } = hsl
 
   const hsv = {}
@@ -176,83 +56,177 @@ export function hslToHSV(hsl) {
   return { ...hsv }
 }
 
-export function buildColor(value, type, prevColor) {
-  let color
-  let colorValue
-  let hex
-  let hsl
-  let hsv
-  let rgb
-  switch (type) {
-    case 'hex':
-      colorValue = formatHEXValue(value)
-      hex = {}
-      hex.value = colorValue
-      hsl = hexToHSL(hex)
-      rgb = hexToRGB(hex)
-      hsv = hslToHSV(hsl)
-      break
-    case 'rgb':
-      rgb = formatRGB(value)
-      hex = rgbToHEX(rgb)
-      hsl = hexToHSL(hex)
-      hsv = hslToHSV(hsl)
-      break
-    case 'hsl':
-      hsl = formatHSL(value)
-      hsv = hslToHSV(hsl)
-      rgb = hslToRGB(hsl)
-      hex = rgbToHEX(rgb)
-      break
-    case 'r':
-      color = prevColor
-      color.rgb.r = value[1]
-      rgb = color.rgb
-      hex = rgbToHEX(rgb)
-      hsl = hexToHSL(hex)
-      hsv = hslToHSV(hsl)
-      break
-    case 'g':
-      color = prevColor
-      color.rgb.g = value[1]
-      rgb = color.rgb
-      hex = rgbToHEX(rgb)
-      hsl = hexToHSL(hex)
-      hsv = hslToHSV(hsl)
-      break
-    case 'b':
-      color = prevColor
-      color.rgb.b = value[1]
-      rgb = color.rgb
-      hex = rgbToHEX(rgb)
-      hsl = hexToHSL(hex)
-      hsv = hslToHSV(hsl)
-      break
-    default:
-      break
+function rgbToHex(rgb) {
+  const { r, g, b } = rgb
+  const toHex = (x) => {
+    const hex = Math.round(x).toString(16).toUpperCase()
+    return hex.length === 1 ? `0${hex}` : hex
   }
 
-  return {
-    hsl, hsv, hex, rgb
+  const value = `#${toHex(r)}${toHex(g)}${toHex(b)}`
+  return { value }
+}
+
+function rgbToHsl(rgb) {
+  let { r, g, b } = rgb
+  r /= 255
+  g /= 255
+  b /= 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h
+  let s
+  const l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0 // eslint-disable-line no-multi-assign
+  } else {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break
+      case g: h = (b - r) / d + 2; break
+      case b: h = (r - g) / d + 4; break
+      default: h = 0
+    }
+  }
+
+  h *= 60
+
+  const value = `hsl(${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`
+
+  return { h, s, l, value } // eslint-disable-line object-curly-newline
+}
+
+function rToRGB(r, prevColor) {
+  return { prevColor, ...r }
+}
+
+function gToRGB(g, prevColor) {
+  return { prevColor, ...g }
+}
+
+function bToRGB(b, prevColor) {
+  return { prevColor, ...b }
+}
+
+function formatHexValue(hex) {
+  const value = hex[2]
+  const color = value.length === 3
+    ? value[0].repeat(2) + value[1].repeat(2) + value[2].repeat(2)
+    : value
+
+  return `#${color.toUpperCase()}`
+}
+
+function formatRgbValue(rgb) {
+  const [value, r, g, b] = rgb
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+function formatHslValue(hsl) {
+  const [value, h, s, l] = hsl
+  return `hsl(${h}, ${s}%, ${l}%)`
+}
+
+function formatHex(input) {
+  const hex = {}
+  hex.value = formatHexValue(input)
+
+  return { ...hex }
+}
+
+function formatRgb(input) {
+  const [value, r, g, b] = input
+  const rgb = {}
+  rgb.r = parseFloat(r)
+  rgb.g = parseFloat(g)
+  rgb.b = parseFloat(b)
+  rgb.value = formatRgbValue(input)
+
+  return { ...rgb }
+}
+
+function formatHsl(input) {
+  const [value, h, s, l] = input
+  const hsl = {}
+  hsl.h = parseFloat(h)
+  hsl.s = parseFloat(s / 100)
+  hsl.l = parseFloat(l / 100)
+  hsl.value = formatHslValue(input)
+
+  return { ...hsl }
+}
+
+const colors = {
+  hex: {
+    reg: /^(#?)([a-f\d]{3}|[a-f\d]{6})$/i,
+    rgb: hexToRgb,
+    value: formatHex
+  },
+  rgb: {
+    reg: /^rgb\( ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d), ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d), ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d) ?\)$/,
+    rgb: rgb => rgb,
+    hex: rgbToHex,
+    hsl: rgbToHsl,
+    value: formatRgb
+  },
+  r: {
+    reg: /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/,
+    rgb: rToRGB
+  },
+  g: {
+    reg: /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/,
+    rgb: gToRGB
+  },
+  b: {
+    reg: /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/,
+    rgb: bToRGB
+  },
+  hsl: {
+    reg: /^hsl\( ?(0|360|35\d|3[0-4]\d|[12]\d\d|0?\d?\d), ?(0|100|\d{1,2})%, ?(0|100|\d{1,2})%\)$/,
+    rgb: hslToRgb,
+    value: formatHsl
   }
 }
 
 function detectColorType(color) {
-  let reg
+  let colorType = null
 
-  reg = /^(#?)([a-f\d]{3}|[a-f\d]{6})$/i
-  if (reg.test(color)) { return 'hex' }
+  Object
+    .keys(colors)
+    .forEach((type) => {
+      if (colors[type].reg.test(color)) { colorType = type }
+    })
 
-  reg = /^rgb\( ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d), ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d), ?(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d) ?\)$/
-  if (reg.test(color)) { return 'rgb' }
-
-  reg = /^hsl\( ?(0|360|35\d|3[0-4]\d|[12]\d\d|0?\d?\d), ?(0|100|\d{1,2})%, ?(0|100|\d{1,2})%\)$/
-  if (reg.test(color)) { return 'hsl' }
-
-  return null
+  return colorType
 }
 
-export function createColorObject(value) {
+function getColorValues(color, type) {
+  const colorType = type || detectColorType(color)
+  return colors[colorType].reg.exec(color)
+}
+
+function buildColorFromRgb(rgb) {
+  const hex = rgbToHex(rgb)
+  const hsl = rgbToHsl(rgb)
+  const hsv = hslToHsv(hsl)
+
+  return {
+    rgb, hex, hsl, hsv
+  }
+}
+
+function buildColor(value, type, prevColor) {
+  const values = colors[type].value(value)
+  const rgb = colors[type].rgb(values, prevColor)
+
+  return buildColorFromRgb(rgb)
+}
+
+function createColorObject(value) {
   let color = value
   let type = detectColorType(color)
 
@@ -261,35 +235,42 @@ export function createColorObject(value) {
     type = 'hex'
   }
 
-  const colorValues = getColorValues(color, type)
+  const colorValues = getColorValues(color)
   return buildColor(colorValues, type)
 }
 
-export function formatInputValue(color, type) {
+function formatInputValue(color, type) {
   let value
-  let values
-
   switch (type) {
     case 'hex':
-      values = getColorValues(color[type].value, type)
-      value = formatHEXValue(values)
-      break
     case 'rgb':
-      values = getColorValues(color[type].value, type)
-      value = formatRGBValue(values)
+    case 'hsl':
+      value = color[type].value
       break
     case 'r':
-      value = color.rgb.r
-      break
     case 'g':
-      value = color.rgb.g
-      break
     case 'b':
-      value = color.rgb.b
+      value = color.rgb[type]
       break
     default:
       break
   }
 
   return value
+}
+
+export {
+  hexToRgb,
+  hslToRgb,
+  rgbToHex,
+  getColorValues,
+  formatHexValue,
+  formatRgbValue,
+  formatHslValue,
+  formatRgb,
+  formatHsl,
+  hslToHsv,
+  buildColor,
+  createColorObject,
+  formatInputValue
 }
