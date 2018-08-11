@@ -1,10 +1,8 @@
-<div align="center">
-
-<img alt="colorpicker-react logo" src="media/logo.png" height="160">
-
-# colorpicker-react
-
-</div>
+<h1 align="center">
+  <img alt="colorpicker-react logo" src="media/logo.png" height="160">
+  <br>
+  colorpicker-react
+</h1>
 
 ## Table of Contents
 
@@ -190,6 +188,7 @@ Styles that are applied to the wrapper.
 > `string` | defaults to `'hex'`
 
 Type of color model accepted by the input. Accepted one of:
+
 | `'rgb'` | `'hex'` | `'r'` | `'g'` | `'b'` |
 |:-------:|:-------:|:-----:|:-----:|:-----:|
 
@@ -201,6 +200,7 @@ Type of color model accepted by the input. Accepted one of:
 > `string` | required
 
 Color value of the button. Accepted value formats:
+
 | hex         | rgb                | hsl                   |
 |:-----------:|:------------------:|:---------------------:|
 | `'#FF0000'` | `‘rgb(255, 0, 0)’` | `‘hsl(0, 100%, 50%)’` |
