@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import isEqual from 'lodash.isequal'
 import throttle from 'lodash.throttle'
 
+import Pointer from './Pointer'
 import withColor from './withColor'
 
 const propTypes = {
@@ -30,29 +31,40 @@ const propTypes = {
       value: PropTypes.string
     })
   }).isRequired,
-  onMouseMove: PropTypes.func,
-  onKeyDown: PropTypes.func,
-  updatePositon: PropTypes.func,
+  env: PropTypes.shape({
+    addEventListener: PropTypes.func,
+    removeEventListener: PropTypes.func
+  }),
+  onChange: PropTypes.func.isRequired,
+  getColorFromMouseMove: PropTypes.func,
+  getColorFromKeyDown: PropTypes.func,
+  getPosition: PropTypes.func,
+  passedRef: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.object,
+    PropTypes.func
+  ]),
+  render: PropTypes.func,
   wrapperComponent: PropTypes.func
 }
 
 const defaultProps = {
   children: null,
-  onMouseMove: () => {},
-  onKeyDown: () => {},
-  updatePositon: () => {},
+  env: typeof window === 'undefined' ? {} : window, // eslint-disable-line no-undef
+  getColorFromMouseMove: () => {},
+  getColorFromKeyDown: () => {},
+  getPosition: () => {},
+  passedRef: null,
+  render: () => {},
   wrapperComponent: () => {}
 }
 
-class Picker extends React.PureComponent {
+class Picker extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      color: props.color,
-      pressed: false,
       focused: false
     }
-    this.field = React.createRef()
 
     this.handleMouseDown = this.handleMouseDown.bind(this)
     this.handleMouseMove = throttle(this.handleMouseMove.bind(this), 10)
@@ -60,65 +72,45 @@ class Picker extends React.PureComponent {
     this.handleBlur = this.handleBlur.bind(this)
     this.handleFocus = this.handleFocus.bind(this)
     this.handleKeyDown = throttle(this.handleKeyDown.bind(this), 10)
-  }
-
-  componentDidMount() {
-    this.rect = this.field.current.getBoundingClientRect()
-    this.props.updatePositon(this.props.color, this.rect)
-
-    document.addEventListener('keydown', this.handleKeyDown)
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { color } = this.props
-
-    if (isEqual(color, prevState.color) || isEqual(color, prevProps.color)) { return }
-    this.props.updatePositon(color, this.rect)
+    this.unbindMouseListeners = this.unbindMouseListeners.bind(this)
   }
 
   componentWillUnmount() {
+    const { env } = this.props
+
     // Unbind listeners
-    this.field.current.removeEventListener('mousedown', this.handleMouseDown)
-    this.field.current.removeEventListener('touchstart', this.handleMouseDown)
-    this.field.current.removeEventListener('mousemove', this.handleMouseMove)
-    document.removeEventListener('keydown', this.handleKeyDown)
+    env.removeEventListener('keydown', this.handleKeyDown)
+    this.unbindMouseListeners()
   }
 
   handleMouseDown(event) {
+    const { color, env } = this.props
     event.stopPropagation()
     event.persist()
-    this.setState({ pressed: true }, () => {
-      this.handleMouseMove(event, this.field.current)
 
-      document.addEventListener('mousemove', this.handleMouseMove)
-      document.addEventListener('touchmove', this.handleMouseMove)
-      document.addEventListener('mouseup', this.handleMouseUp)
-    })
+    this.handleMouseMove(event, color, this.wrapper)
+
+    env.addEventListener('mousemove', this.handleMouseMove)
+    env.addEventListener('touchmove', this.handleMouseMove)
+    env.addEventListener('mouseup', this.handleMouseUp)
   }
 
   handleMouseMove(event) {
-    if (this.state.pressed) {
-      const { onMouseMove } = this.props
+    const { color: prevColor, onChange, getColorFromMouseMove, passedRef } = this.props
 
-      let color
+    let color
 
-      if (onMouseMove) {
-        color = onMouseMove(event, this.field.current)
-      }
-
-      if (color) {
-        this.setState({ color })
-      }
+    if (getColorFromMouseMove && passedRef) {
+      color = getColorFromMouseMove(event, prevColor, passedRef)
     }
+
+    if (!color) { return }
+
+    onChange(color)
   }
 
-  handleMouseUp(event) {
-    if (!this.state.pressed) return
-
-    this.setState({ pressed: false })
-
-    this.field.current.removeEventListener('mousedown', this.handleMouseDown)
-    this.field.current.removeEventListener('touchstart', this.handleMouseDown)
+  handleMouseUp() {
+    this.unbindMouseListeners()
   }
 
   handleBlur() {
@@ -132,37 +124,62 @@ class Picker extends React.PureComponent {
   handleKeyDown(event) {
     const { focused } = this.state
     const key = event.keyCode || event.which
+    const inRange = key > 36 && key < 41
 
+    event.persist()
     // Ignore if pointer is not focused
-    if (!focused) { return }
-    if (focused && key > 36 && key < 41) {
-      const { onKeyDown } = this.props
+    if (!focused || !inRange) { return }
 
-      let color
+    // Prevent arrow keys from scrolling
+    event.preventDefault()
 
-      if (onKeyDown) {
-        color = onKeyDown(key, this.rect)
-      }
+    const { color: prevColor, onChange, getColorFromKeyDown, passedRef } = this.props
 
-      if (color) {
-        this.setState({ color })
-      }
+    let color
+
+    if (getColorFromKeyDown && passedRef) {
+      color = getColorFromKeyDown(prevColor, key, passedRef)
     }
+
+    if (!color) { return }
+
+    onChange(color)
+  }
+
+  unbindMouseListeners() {
+    const { env } = this.props
+
+    env.removeEventListener('mousemove', this.handleMouseMove)
+    env.removeEventListener('touchmove', this.handleMouseMove)
+    env.removeEventListener('mouseup', this.handleMouseUp)
   }
 
   render() {
-    const { children, color, onMouseMove, onKeyDown, updatePositon,
-      wrapperComponent: Wrapper, ...passedProps } = this.props
+    const { children, color, getColorFromMouseMove, getColorFromKeyDown, passedRef, render,
+      getPosition, wrapperComponent: Wrapper, ...passedProps } = this.props
+
+    let top
+    let left
+
+    if (passedRef) {
+      ({ top, left } = getPosition(color, passedRef))
+    }
 
     return (
       <Wrapper
-        innerRef={this.field}
+        passedRef={passedRef}
         onMouseDown={this.handleMouseDown}
         onKeyDown={this.handleKeyDown}
         onTouchStart={this.handleMouseDown}
         {...passedProps}
       >
-        {children}
+        {render({ color })}
+        <Pointer
+          onBlur={this.handleBlur}
+          onFocus={this.handleFocus}
+          top={top}
+          left={left}
+        />
       </Wrapper>
     )
   }
@@ -172,4 +189,4 @@ Picker.propTypes = propTypes
 
 Picker.defaultProps = defaultProps
 
-export default Picker
+export default withColor(Picker)

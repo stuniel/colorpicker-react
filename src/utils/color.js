@@ -51,7 +51,7 @@ function hslToHsv(hsl) {
   hsv.h = h
   const t = s * ((l < 0.5) ? l : (1 - l))
   hsv.v = l + t
-  hsv.s = (l > 0) ? (2 * t) / hsv.v : hsv.s
+  hsv.s = (l > 0) ? (2 * t) / hsv.v : hsl.s
 
   return { ...hsv }
 }
@@ -205,8 +205,8 @@ function detectColorType(color) {
 }
 
 function getColorValues(color, type) {
-  const colorType = type || detectColorType(color)
-  return colors[colorType].reg.exec(color)
+  type = type || detectColorType(color)
+  return colors[type].reg.exec(color)
 }
 
 function buildColorFromRgb(rgb) {
@@ -259,6 +259,19 @@ function formatInputValue(color, type) {
   return value
 }
 
+function getBasicHue(color) {
+  const { hsl: { h } } = color
+  const backgroundColor = `hsl(${h}, 100%, 50%)`
+  return backgroundColor
+}
+
+function hueChanged(prevColor, color) {
+  const { hsv: { h } } = color
+  const { hsv: { h: prevH } } = prevColor
+
+  return prevH !== h
+}
+
 export {
   hexToRgb,
   hslToRgb,
@@ -272,5 +285,7 @@ export {
   hslToHsv,
   buildColor,
   createColorObject,
-  formatInputValue
+  formatInputValue,
+  getBasicHue,
+  hueChanged
 }

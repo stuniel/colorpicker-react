@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import styled from 'styled-components'
 
-import { ColorButton, ColorPicker, ColorInput, withColor } from '../../src'
+import { ColorButton, ColorPicker, ColorInput, ColorWheel, PickingArea, withColor } from '../../src'
 
 const Wrapper = styled.div`
   width: 300px;
@@ -25,7 +25,6 @@ const WrapperButtons = styled.div`
 `
 
 const Preview = styled.div`
-  background-color: ${props => props.color};
   width: 100%;
   height: 50px;
   border: 0;
@@ -36,6 +35,7 @@ const ColorPreview = withColor(props => (
   <Preview
     color={props.color.hex.value}
     onChange={props.onChange.color}
+    style={{ backgroundColor: props.color.hex.value }}
   />
 ))
 
@@ -55,9 +55,10 @@ class App extends React.Component {
     return (
       <ColorPicker
         defaultColor={this.state.color.hex.value}
-        onChange={color => this.setState({ color })}
       >
         <Wrapper>
+          <PickingArea height={250} />
+          <ColorWheel />
           <ColorInput previewButton />
           <ColorPreview />
           <WrapperButtons>
@@ -71,4 +72,5 @@ class App extends React.Component {
     )
   }
 }
+
 render(<App />, document.getElementById('root'))
