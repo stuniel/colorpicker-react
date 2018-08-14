@@ -5,6 +5,7 @@ module.exports = {
         "semi": [2, "never"],
         "quotes": [2, "single"],
         "comma-dangle": [2, "never"],
+        "object-curly-newline": "off",
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
     },
     "plugins": [
