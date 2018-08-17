@@ -1,4 +1,4 @@
-import { hslToHsv, hslToRgb, rgbToHex } from './color'
+import { hslToHsv, hslToRgb, rgbToHex } from './formatColor'
 
 function radiansToDegrees(radians) {
   return (radians * 180) / Math.PI

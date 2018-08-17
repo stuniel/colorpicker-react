@@ -1,4 +1,4 @@
-import { hslToRgb, rgbToHex } from './color'
+import { hslToRgb, rgbToHex } from './formatColor'
 
 function getPosition(color) {
   const { hsv: { s, v } } = color
