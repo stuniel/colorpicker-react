@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import isEqual from 'lodash.isequal'
 
 import { formatInputValue, getColorValues, buildColor } from '../utils/color'
 import withColor from './withColor'
@@ -63,7 +62,6 @@ const PreviewButton = styled.button`
   position: absolute;
   width: ${props => (props.preview ? '40%' : '1em')};
   height: ${props => (props.preview ? '100%' : '1em')};
-  background-color: ${props => props.value};
   white-space: nowrap;
   max-height: 100%;
   border: 1px solid #ccc;
@@ -72,7 +70,7 @@ const PreviewButton = styled.button`
   top: 50%;
   right: ${props => (props.preview ? '0' : '0.5em')};
   transform: translateY(-50%);
-  transition: 0.4s all cubic-bezier(0.85, 0, 0.15, 1);
+  transition: 0.4s right cubic-bezier(0.85, 0, 0.15, 1), 0.4s border-radius cubic-bezier(0.85, 0, 0.15, 1), 0.4s height cubic-bezier(0.85, 0, 0.15, 1), 0.4s width cubic-bezier(0.85, 0, 0.15, 1);
   cursor: pointer;
   box-sizing: border-box;
   z-index: 100;
@@ -133,6 +131,7 @@ class ColorInput extends React.PureComponent {
   render() {
     const { color: { hex: { value } }, previewButton, style } = this.props
     const { inputValue, preview } = this.state
+    const buttonStyle = { backgroundColor: value }
 
     return (
       <Wrapper style={style}>
@@ -145,6 +144,7 @@ class ColorInput extends React.PureComponent {
         {previewButton && (<PreviewButton
           value={value}
           preview={preview}
+          style={buttonStyle}
           type="button"
           onClick={this.togglePreview}
         />)}

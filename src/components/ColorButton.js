@@ -45,7 +45,6 @@ const Button = styled.button`
   height: ${props => props.radius};
   border: ${props => `3px solid ${props.value}`};
   border-radius: ${props => props.radius};
-  background-color: ${props => (props.active ? 'transparent' : props.value)};
   outline: none;
   box-sizing: border-box;
   transition: 0.4s all cubic-bezier(0.85, 0, 0.15, 1);
@@ -82,12 +81,16 @@ class ColorButton extends React.Component {
     const { radius, value, style } = this.props
     const { active } = this.state
 
+    const buttonStyle = {
+      backgroundColor: active ? 'transparent' : value,
+      ...style
+    }
+
     return (
       <Button
-        active={active}
         onMouseDown={this.handleMouseDown}
         radius={radius}
-        style={style}
+        style={buttonStyle}
         value={value}
       />
     )

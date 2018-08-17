@@ -2,10 +2,13 @@
 
 exports[`<ColorButton /> renders correctly 1`] = `
 <styled.button
-  active={false}
   onMouseDown={[Function]}
   radius="2em"
-  style={Object {}}
+  style={
+    Object {
+      "backgroundColor": "#000000",
+    }
+  }
   value="#000000"
 />
 `;
