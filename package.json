@@ -7,7 +7,10 @@
     "start": "webpack-dev-server --mode development",
     "test": "jest",
     "transpile": "babel src -d dist --copy-files",
-    "prepublishOnly": "npm run transpile"
+    "prepublishOnly": "npm run transpile",
+    "build": "webpack --mode production",
+    "deploy": "gh-pages -d examples/dist",
+    "publish-demo": "npm run build && npm run deploy"
   },
   "repository": {
     "type": "git",
@@ -25,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/stuniel/colorpicker-react/issues"
   },
-  "homepage": "https://github.com/stuniel/colorpicker-react#readme",
+  "homepage": "http://stuniel.github.io/colorpicker-react",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-loader": "^7.1.4",
@@ -41,6 +44,7 @@
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.9.1",
+    "gh-pages": "^1.2.0",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^23.1.0",
     "lodash.isequal": "^4.5.0",

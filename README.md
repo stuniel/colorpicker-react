@@ -7,6 +7,7 @@
 ## Table of Contents
 
 * [Getting started](#getting-started)
+  * [Demo](#demo)
   * [Install](#install)
   * [Import](#import)
   * [Why colorpicker-react?](#why-colorpicker-react)
@@ -15,11 +16,16 @@
   * [color](#color)
   * [onChange](#onchange)
 * [ColorPicker](#colorpicker)
+* [PickingArea](#pickingarea)
 * [ColorInput](#colorinput)
 * [ColorButton](#colorbutton)
 * [withColor](#withcolor)
 
 ## Getting started
+
+### Demo
+
+See live [demo](https://stuniel.github.io/colorpicker-react/)
 
 ### Install
 
@@ -172,6 +178,23 @@ class App extends React.Component {
 }
 ```
 
+## `<PickingArea>`
+  
+### `height`
+> `number` or `string` | defaults to `300`
+
+Specifies area\'s height.
+
+### `width`
+> `number` or `string` | defaults to `300`
+
+Specifies area\'s width.
+
+#### `style`
+> `object` | defaults to `{}`
+
+Styles that are applied to the wrapper.
+  
 ## `<ColorInput>`
 
 ### `previewButton`
